@@ -1,0 +1,135 @@
+<div class="page-header">
+  <div>
+    <h2>Giám sát Sức khỏe Realtime</h2>
+    <p>Module 2 · WebSocket STOMP · Chart.js Streaming · IoT Pipeline</p>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div class="live-indicator"><span class="live-dot"></span> Live STOMP</div>
+    <select class="form-select" [ngModel]="selectedPatientId()" (ngModelChange)="selectPatient($event)">
+      @for (p of patients(); track p.id) {
+      <option [value]="p.id">{{ p.id }} · {{ p.fullName }}</option>
+      }
+    </select>
+    <button class="tab-btn" [class.active]="viewMode() === 'single'" (click)="setViewMode('single')">
+      <i class="fa-solid fa-user"></i> Bệnh nhân
+    </button>
+    <button class="tab-btn" [class.active]="viewMode() === 'ward'" (click)="setViewMode('ward')">
+      <i class="fa-solid fa-grip"></i> Phòng bệnh
+    </button>
+  </div>
+</div>
+
+<!-- Vital Stats Cards -->
+<div class="vitals-grid">
+  <div class="vital-card" [class]="getVitalStatus('hr')">
+    <div class="vital-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+    <div class="vital-info">
+      <span class="vital-label">NHỊP TIM</span>
+      <span class="vital-value">{{ currentVitals().heartRate }}</span>
+      <span class="vital-unit">bpm (60-100)</span>
+    </div>
+  </div>
+  <div class="vital-card" [class]="getVitalStatus('spo2')">
+    <div class="vital-icon"><i class="fa-solid fa-lungs"></i></div>
+    <div class="vital-info">
+      <span class="vital-label">SpO2</span>
+      <span class="vital-value">{{ currentVitals().spO2 }}</span>
+      <span class="vital-unit">% (95-100)</span>
+    </div>
+  </div>
+  <div class="vital-card" [class]="getVitalStatus('bp')">
+    <div class="vital-icon"><i class="fa-solid fa-gauge-high"></i></div>
+    <div class="vital-info">
+      <span class="vital-label">HUYẾT ÁP</span>
+      <span class="vital-value">{{ currentVitals().systolicBP }}/{{ currentVitals().diastolicBP }}</span>
+      <span class="vital-unit">mmHg</span>
+    </div>
+  </div>
+  <div class="vital-card" [class]="getVitalStatus('temp')">
+    <div class="vital-icon"><i class="fa-solid fa-temperature-half"></i></div>
+    <div class="vital-info">
+      <span class="vital-label">NHIỆT ĐỘ</span>
+      <span class="vital-value">{{ currentVitals().temperature }}</span>
+      <span class="vital-unit">°C (36.1-37.2)</span>
+    </div>
+  </div>
+  <div class="vital-card normal">
+    <div class="vital-icon"><i class="fa-solid fa-wind"></i></div>
+    <div class="vital-info">
+      <span class="vital-label">NHỊP THỞ</span>
+      <span class="vital-value">{{ currentVitals().respiratoryRate }}</span>
+      <span class="vital-unit">lần/ph (12-20)</span>
+    </div>
+  </div>
+  <div class="vital-card" [class]="currentVitals().anomalyScore > 0.7 ? 'danger' : 'normal'">
+    <div class="vital-icon"><i class="fa-solid fa-robot"></i></div>
+    <div class="vital-info">
+      <span class="vital-label">AI ANOMALY</span>
+      <span class="vital-value">{{ (currentVitals().anomalyScore * 100).toFixed(0) }}%</span>
+      <span class="vital-unit">Risk Score</span>
+    </div>
+  </div>
+</div>
+
+<!-- Single Patient View -->
+<div [hidden]="viewMode() !== 'single'">
+  <div class="patient-info-bar" *ngIf="selectedPatient() as p">
+    <span><strong>{{ p.fullName }}</strong> ({{ p.id }})</span>
+    <span>{{ p.age }}T · {{ p.gender }}</span>
+    <span>{{ p.ward }} · Bed {{ p.bed }}</span>
+    <span class="badge" [class]="'badge-' + p.riskLevel.toLowerCase()">{{ p.riskLevel }}</span>
+    @if (p.allergies.length) {
+    <span style="color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> Dị ứng: {{ p.allergies.join(', ')
+      }}</span>
+    }
+  </div>
+
+  <div class="charts-grid">
+    <div class="card chart-card">
+      <div class="card-header"><span style="color:#ef4444"><i class="fa-solid fa-heart-pulse"></i> Nhịp tim
+          (HR)</span><span class="chart-value" style="color:#ef4444">{{ currentVitals().heartRate }} bpm</span></div>
+      <div class="chart-body"><canvas #hrCanvas></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="card-header"><span style="color:#3b82f6"><i class="fa-solid fa-lungs"></i> SpO2</span><span
+          class="chart-value" style="color:#3b82f6">{{ currentVitals().spO2 }}%</span></div>
+      <div class="chart-body"><canvas #spo2Canvas></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="card-header"><span style="color:#f59e0b"><i class="fa-solid fa-gauge-high"></i> Huyết áp
+          (BP)</span><span class="chart-value" style="color:#f59e0b">{{ currentVitals().systolicBP }}/{{
+          currentVitals().diastolicBP }}</span></div>
+      <div class="chart-body"><canvas #bpCanvas></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <div class="card-header"><span style="color:#10b981"><i class="fa-solid fa-temperature-half"></i> Nhiệt
+          độ</span><span class="chart-value" style="color:#10b981">{{ currentVitals().temperature }}°C</span></div>
+      <div class="chart-body"><canvas #tempCanvas></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- Ward Overview -->
+@if (viewMode() === 'ward') {
+<div class="card" style="margin-top:4px">
+  <div class="card-header"><span><i class="fa-solid fa-hospital"></i> Tổng quan Phòng bệnh</span><span
+      style="font-size:11px;color:#64748b">{{ wardPatients().length }} bệnh nhân nội trú</span></div>
+  <div class="ward-grid">
+    @for (p of wardPatients(); track p.id) {
+    <div class="ward-cell" [class]="getWardStatus(p)" (click)="selectPatient(p.id); setViewMode('single')">
+      <div class="ward-cell-header">
+        <strong>{{ p.ward }} · {{ p.bed }}</strong>
+        <span class="badge" [class]="'badge-' + p.riskLevel.toLowerCase()" style="font-size:9px">{{ p.riskLevel
+          }}</span>
+      </div>
+      <div class="ward-cell-name">{{ p.fullName }}</div>
+      <div class="ward-cell-info">{{ p.age }}T · {{ p.gender }}</div>
+      <div class="ward-cell-vitals">
+        <span>❤️ {{ 80 + (p.riskScore * 40) | number:'1.0-0' }}</span>
+        <span>🫁 {{ 99 - (p.riskScore * 10) | number:'1.0-0' }}%</span>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+}

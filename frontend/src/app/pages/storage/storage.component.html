@@ -1,0 +1,207 @@
+<div class="page-header">
+  <div>
+    <h2>Lưu trữ Y tế (PACS/VNA)</h2>
+    <p>Module 13 · Ceph S3 Storage · DICOM Viewer Integration (Placeholder)</p>
+  </div>
+  <button class="btn btn-primary" (click)="openUpload()">
+    <i class="fa-solid fa-cloud-arrow-up"></i> Tải tài liệu lên
+  </button>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px">
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">Tổng dung lượng</div>
+        <div class="stat-value">{{ stats.totalSize }}</div>
+      </div>
+      <div style="font-size:32px;color:#3b82f6;opacity:0.2"><i class="fa-solid fa-hard-drive"></i></div>
+    </div>
+  </div>
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">CT/MRI (DICOM)</div>
+        <div class="stat-value">{{ stats.dicoms }} file</div>
+      </div>
+      <div style="font-size:32px;color:#8b5cf6;opacity:0.2"><i class="fa-solid fa-brain"></i></div>
+    </div>
+  </div>
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">X-Ray Images</div>
+        <div class="stat-value">{{ stats.xrays }} file</div>
+      </div>
+      <div style="font-size:32px;color:#10b981;opacity:0.2"><i class="fa-solid fa-x-ray"></i></div>
+    </div>
+  </div>
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">Lab Reports (PDF)</div>
+        <div class="stat-value">{{ stats.pdfs }} file</div>
+      </div>
+      <div style="font-size:32px;color:#f59e0b;opacity:0.2"><i class="fa-solid fa-file-pdf"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="storage-layout" [class.has-selection]="selectedFile() !== null">
+  <!-- Main File Browser -->
+  <div class="card file-browser">
+    <div class="card-header" style="justify-content:space-between">
+      <span style="font-weight:600"><i class="fa-solid fa-folder-tree" style="margin-right:8px;color:#3b82f6"></i> Tất
+        cả tập tin hệ thống</span>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Tìm kiếm file...">
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Tên tập tin</th>
+            <th>Loại</th>
+            <th>Dung lượng</th>
+            <th>Bệnh nhân</th>
+            <th>Người tải lên</th>
+            <th>Ngày tải lên</th>
+            <th>S3 Bucket</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (f of files(); track f.id) {
+          <tr (click)="selectFile(f)" [class.active-row]="selectedFile()?.id === f.id" style="cursor:pointer">
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <i [class]="'fa-solid ' + getFileIcon(f.fileType)" style="color:#94a3b8;font-size:18px"></i>
+                <strong style="color:#0f172a">{{ f.fileName }}</strong>
+              </div>
+            </td>
+            <td><span class="badge" style="background:#f1f5f9;color:#475569">{{ f.fileType }}</span></td>
+            <td style="font-family:monospace;color:#64748b">{{ formatBytes(f.size) }}</td>
+            <td>{{ f.patientName }} <span style="font-size:11px;color:#94a3b8">({{ f.patientId }})</span></td>
+            <td>{{ f.uploadedBy }}</td>
+            <td>{{ f.uploadedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td><span
+                style="font-family:monospace;font-size:11px;color:#94a3b8;background:#f8fafc;padding:2px 6px;border-radius:4px">{{
+                f.bucket }}</span></td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DICOM Viewer Placeholder / Right Sidebar -->
+  @if (selectedFile(); as sf) {
+  <div class="card viewer-panel">
+    <div class="card-header" style="justify-content:space-between">
+      <span><i class="fa-solid fa-eye"></i> Xem trước</span>
+      <button class="btn-icon" (click)="selectedFile.set(null)"
+        style="background:none;border:none;cursor:pointer;color:#94a3b8"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="viewer-body">
+      <div class="file-meta-header">
+        <i [class]="'fa-solid ' + getFileIcon(sf.fileType)" style="font-size:36px;color:#3b82f6;margin-bottom:12px"></i>
+        <h4 style="margin:0 0 6px 0;word-break:break-all;color:#0f172a">{{ sf.fileName }}</h4>
+        <p style="margin:0;font-size:12px;color:#64748b">{{ formatBytes(sf.size) }} · {{ sf.fileType }}</p>
+      </div>
+
+      @if (sf.mimeType === 'application/dicom') {
+      <div class="dicom-viewer-placeholder">
+        <div class="dicom-toolbar">
+          <i class="fa-solid fa-search-plus" title="Zoom"></i>
+          <i class="fa-solid fa-sun" title="Window Level"></i>
+          <i class="fa-solid fa-arrows-up-down-left-right" title="Pan"></i>
+          <i class="fa-solid fa-ruler" title="Measure"></i>
+          <i class="fa-solid fa-play" title="Cine"></i>
+        </div>
+        <div class="dicom-screen">
+          <i class="fa-solid fa-brain dicom-scan-icon"></i>
+          <div class="dicom-overlay-tl">{{ sf.patientName }}<br>{{ sf.patientId }}</div>
+          <div class="dicom-overlay-tr">Máy CT: Siemens<br>{{ sf.uploadedAt | date:'dd/MM/yyyy' }}</div>
+          <div class="dicom-overlay-bl">Zoom: 1.0<br>W: 40 L: 400</div>
+          <div class="dicom-overlay-br">Thick: 5.0mm<br>Image: 12/45</div>
+        </div>
+        <p style="text-align:center;font-size:12px;color:#64748b;margin-top:12px">
+          Cornerstone.js / OHIF Viewer Integration<br>(Đang mô phỏng giao diện DICOM)
+        </p>
+      </div>
+      } @else if (sf.mimeType.includes('image')) {
+      <div class="image-preview"
+        style="background:#0f172a;border-radius:8px;padding:24px;text-align:center;margin-top:20px;color:#334155;height:250px;display:flex;align-items:center;justify-content:center">
+        <i class="fa-solid fa-x-ray" style="font-size:120px;opacity:0.3;color:#fff"></i>
+      </div>
+      } @else if (sf.mimeType === 'application/pdf') {
+      <div class="doc-preview"
+        style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:40px;text-align:center;margin-top:20px">
+        <i class="fa-solid fa-file-pdf" style="font-size:48px;color:#ef4444;margin-bottom:12px"></i>
+        <div style="font-size:13px;color:#475569">File PDF có thể xem trực tiếp hoặc tải xuống</div>
+        <button class="btn btn-secondary" style="margin-top:16px;font-size:12px">
+          <i class="fa-solid fa-download"></i> Tải xuống
+        </button>
+      </div>
+      } @else {
+      <div class="doc-preview"
+        style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:40px;text-align:center;margin-top:20px">
+        <i class="fa-solid fa-video" style="font-size:48px;color:#8b5cf6;margin-bottom:12px"></i>
+        <div style="font-size:13px;color:#475569">Video Player (Media)</div>
+        <button class="btn btn-primary" style="margin-top:16px;font-size:12px">
+          <i class="fa-solid fa-play"></i> Xem Video
+        </button>
+      </div>
+      }
+
+      <div class="file-details" style="margin-top:24px">
+        <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase">Thông tin
+          Metadata</div>
+        <div class="detail-row"><span class="label">Bệnh nhân</span><span class="val">{{ sf.patientName }}</span></div>
+        <div class="detail-row"><span class="label">Ngày upload</span><span class="val">{{ sf.uploadedAt |
+            date:'dd/MM/yyyy HH:mm' }}</span></div>
+        <div class="detail-row"><span class="label">Bởi</span><span class="val">{{ sf.uploadedBy }}</span></div>
+        <div class="detail-row"><span class="label">S3 Bucket</span><span class="val"
+            style="font-family:monospace;color:#3b82f6">{{ sf.bucket }}</span></div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<!-- Upload Modal -->
+@if (showUploadModal()) {
+<div class="modal-overlay" (click)="closeUpload()">
+  <div class="modal-content" style="max-width:500px" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Tải tài liệu lên</h3>
+      <button class="btn btn-secondary" (click)="closeUpload()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-dropzone">
+        @if (isUploading()) {
+        <div class="uploading-state">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size:32px;color:#3b82f6;margin-bottom:12px"></i>
+          <p style="font-weight:600;color:#0f172a">Đang upload lên Ceph S3...</p>
+          <div style="width:200px;height:4px;background:#e2e8f0;border-radius:2px;margin-top:12px;overflow:hidden">
+            <div style="height:100%;width:60%;background:#3b82f6;border-radius:2px;transition:all 0.3s"></div>
+          </div>
+        </div>
+        } @else {
+        <div
+          style="width:64px;height:64px;border-radius:50%;background:#eff6ff;color:#3b82f6;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <h4 style="margin:0 0 8px 0">Kéo thả file DICOM/PDF vào đây</h4>
+        <p style="font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.5">Hoặc duyệt qua máy tính để tải file
+          lên.<br>Hỗ trợ định dạng .dcm, .jpg, .pdf. Tối đa 500MB.</p>
+        <input type="file" id="fileUpload" style="display:none" (change)="simulateUpload($event)" multiple>
+        <label for="fileUpload" class="btn btn-primary" style="cursor:pointer;justify-content:center">Chọn File từ
+          máy</label>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+}

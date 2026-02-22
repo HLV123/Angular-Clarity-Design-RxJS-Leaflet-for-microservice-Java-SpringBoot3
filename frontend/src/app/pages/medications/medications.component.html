@@ -1,0 +1,135 @@
+<div class="page-header">
+  <div>
+    <h2>Thuốc & Đơn thuốc</h2>
+    <p>Module 6 · Thư viện Thuốc · Tra cứu Tương tác thuốc (Neo4j)</p>
+  </div>
+  <button class="btn btn-primary" (click)="toast.success('Mở form kê đơn mới')">
+    <i class="fa-solid fa-prescription"></i> Kê đơn mới
+  </button>
+</div>
+
+<div class="medications-layout">
+  <!-- Left Side: Drug Interaction Checker -->
+  <div class="interaction-checker">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b"></i> Kiểm tra Tương tác Thuốc</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:13px;color:#64748b;margin-bottom:16px">Phân tích tương tác dựa trên Neo4j Knowledge Graph
+        </p>
+
+        <div class="drug-select-group">
+          <div class="form-group">
+            <label>Thuốc 1</label>
+            <select class="form-select" [ngModel]="selectedDrug1()" (ngModelChange)="selectedDrug1.set($event)">
+              <option value="">-- Chọn thuốc --</option>
+              @for (d of drugs(); track d.id) {
+              <option [value]="d.id">{{ d.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="swap-btn-container">
+            <button class="btn-icon" (click)="swapDrugs()" title="Đổi chỗ"><i
+                class="fa-solid fa-right-left"></i></button>
+          </div>
+
+          <div class="form-group">
+            <label>Thuốc 2</label>
+            <select class="form-select" [ngModel]="selectedDrug2()" (ngModelChange)="selectedDrug2.set($event)">
+              <option value="">-- Chọn thuốc --</option>
+              @for (d of drugs(); track d.id) {
+              <option [value]="d.id">{{ d.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center"
+          (click)="checkInteraction()" [disabled]="isChecking()">
+          @if (isChecking()) {
+          <i class="fa-solid fa-spinner fa-spin"></i> Đang phân tích...
+          } @else {
+          <i class="fa-solid fa-magnifying-glass"></i> Phân tích Cảnh báo
+          }
+        </button>
+
+        <!-- Interaction Results -->
+        @if (interactions() !== null) {
+        <div class="interaction-results" style="margin-top:24px">
+          <h4 style="font-size:14px;margin-bottom:12px;border-bottom:1px solid #e2e8f0;padding-bottom:8px">
+            Kết quả phân tích
+          </h4>
+
+          @if (interactions()!.length === 0) {
+          <div class="empty-state" style="padding:16px;text-align:center;background:#f8fafc;border-radius:8px">
+            <i class="fa-solid fa-circle-check" style="color:#10b981;font-size:24px;margin-bottom:8px"></i>
+            <div style="font-size:13px;color:#475569">An toàn! Không tìm thấy tương tác đã biết.</div>
+          </div>
+          } @else {
+          @for (ix of interactions(); track ix.drug1 + ix.drug2) {
+          <div class="interaction-alert" [class]="'ix-' + ix.severity.toLowerCase()">
+            <div class="ix-header">
+              <strong><i class="fa-solid fa-triangle-exclamation"></i> Mức độ: {{ ix.severity }}</strong>
+            </div>
+            <div class="ix-body">
+              <div class="ix-row">
+                <span class="ix-label">Cơ chế:</span>
+                <span class="ix-value">{{ ix.mechanism }}</span>
+              </div>
+              <div class="ix-row">
+                <span class="ix-label">Lâm sàng:</span>
+                <span class="ix-value">{{ ix.clinicalEffect }}</span>
+              </div>
+            </div>
+          </div>
+          }
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Drug Library -->
+  <div class="drug-library">
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fa-solid fa-pills" style="color:#3b82f6"></i> Danh mục Thuốc</span>
+        <span class="badge badge-normal">{{ drugs().length }} loại</span>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã thuốc</th>
+              <th>Tên thuốc</th>
+              <th>Hoạt chất</th>
+              <th>ATC</th>
+              <th>Phân loại</th>
+              <th>Tồn kho</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of drugs(); track d.id) {
+            <tr>
+              <td style="font-family:monospace;color:#64748b">{{ d.code }}</td>
+              <td><strong>{{ d.name }}</strong></td>
+              <td>{{ d.activeIngredient }}</td>
+              <td><span class="badge" style="background:#f1f5f9;color:#475569">{{ d.atcCode }}</span></td>
+              <td>
+                <span class="badge"
+                  [class]="d.category === 'OTC' ? 'badge-low' : (d.category === 'PRESCRIPTION' ? 'badge-normal' : 'badge-critical')">
+                  {{ d.category }}
+                </span>
+              </td>
+              <td style="text-align:right">{{ d.stockQuantity | number }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

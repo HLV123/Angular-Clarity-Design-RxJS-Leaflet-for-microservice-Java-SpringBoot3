@@ -1,0 +1,66 @@
+<div class="page-header">
+  <div>
+    <h2>Phân tích & Báo cáo</h2>
+    <p>Module 7 · Kafka + Flink Pipeline · Chart.js · 8 Loại Biểu đồ</p>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card card">
+    <div class="stat-label">Lượt khám hôm nay</div>
+    <div class="stat-value">{{ stats.visits }}</div>
+    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> 12% so với hôm qua</div>
+  </div>
+  <div class="stat-card card">
+    <div class="stat-label">TG chờ TB</div>
+    <div class="stat-value">{{ stats.waitTime }}<span style="font-size:14px">ph</span></div>
+    <div class="stat-trend trend-down"><i class="fa-solid fa-arrow-trend-down"></i> -2ph so với tuần trước</div>
+  </div>
+  <div class="stat-card card">
+    <div class="stat-label">Tái nhập viện 30d</div>
+    <div class="stat-value">{{ stats.readmission }}<span style="font-size:14px">%</span></div>
+    <div class="stat-trend trend-up" style="color:#ef4444;background:#fef2f2"><i class="fa-solid fa-arrow-trend-up"></i>
+      +0.5% so với tháng trước</div>
+  </div>
+  <div class="stat-card card">
+    <div class="stat-label">Độ hài lòng</div>
+    <div class="stat-value">{{ stats.satisfaction }}<span style="font-size:14px">/5</span></div>
+    <div class="stat-trend trend-up"><i class="fa-solid fa-star"></i> Giữ vững</div>
+  </div>
+</div>
+
+<div class="charts-grid-analytics">
+  <div class="card chart-box">
+    <div class="card-header">Lượt khám theo tháng (Bar Chart)</div>
+    <div class="canvas-wrap"><canvas #chart1></canvas></div>
+  </div>
+  <div class="card chart-box">
+    <div class="card-header">Top 5 Bệnh phổ biến (Horizontal Bar)</div>
+    <div class="canvas-wrap"><canvas #chart2></canvas></div>
+  </div>
+  <div class="card chart-box">
+    <div class="card-header">Tỉ lệ lấp đầy giường bệnh (Stacked Bar)</div>
+    <div class="canvas-wrap"><canvas #chart3></canvas></div>
+  </div>
+  <div class="card chart-box">
+    <div class="card-header">Doanh thu theo tuần (Line Area Chart)</div>
+    <div class="canvas-wrap"><canvas #chart4></canvas></div>
+  </div>
+
+  <div class="card chart-box sub-chart">
+    <div class="card-header">Độ tuổi bệnh nhân (Doughnut)</div>
+    <div class="canvas-wrap wrapper-sm"><canvas #chart5></canvas></div>
+  </div>
+  <div class="card chart-box sub-chart">
+    <div class="card-header">Cảnh báo hệ thống (Pie)</div>
+    <div class="canvas-wrap wrapper-sm"><canvas #chart6></canvas></div>
+  </div>
+  <div class="card chart-box sub-chart">
+    <div class="card-header">Trạng thái Thiết bị (Polar Area)</div>
+    <div class="canvas-wrap wrapper-sm"><canvas #chart7></canvas></div>
+  </div>
+  <div class="card chart-box sub-chart">
+    <div class="card-header">Đánh giá Bác sĩ (Radar)</div>
+    <div class="canvas-wrap wrapper-sm"><canvas #chart8></canvas></div>
+  </div>
+</div>

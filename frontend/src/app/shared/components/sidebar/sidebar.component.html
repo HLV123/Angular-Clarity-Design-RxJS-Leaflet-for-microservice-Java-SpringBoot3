@@ -1,0 +1,52 @@
+<aside class="sidebar" [class.collapsed]="collapsed()">
+  <div class="sidebar-brand">
+    <img src="assets/logo.png" alt="SHMS" class="brand-logo">
+    @if (!collapsed()) {
+      <div class="brand-text">
+        <div class="brand-name">SHMS <span class="version">v1.0</span></div>
+        <div class="brand-sub">HEALTH INTELLIGENCE</div>
+      </div>
+    }
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (section of sections(); track section.section) {
+      @if (!collapsed()) {
+        <div class="nav-section-label">{{ section.section }}</div>
+      }
+      @for (item of section.items; track item.id) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+           [title]="collapsed() ? item.label : ''">
+          <i [class]="item.icon"></i>
+          @if (!collapsed()) { <span class="nav-text">{{ item.label }}</span> }
+        </a>
+      }
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    @if (user(); as u) {
+      @if (!collapsed()) {
+        <div class="user-card">
+          <div class="user-avatar">{{ getInitials(u.fullName) }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ u.fullName }}</div>
+            <div class="user-role">
+              @for (r of u.roles; track r) {
+                <span class="role-badge">{{ getRoleLabel(r) }}</span>
+              }
+            </div>
+          </div>
+        </div>
+        <button class="logout-btn-wide" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </button>
+      } @else {
+        <div class="user-avatar small" [title]="u.fullName">{{ getInitials(u.fullName) }}</div>
+        <button class="logout-btn-icon" (click)="logout()" title="Đăng xuất">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      }
+    }
+  </div>
+</aside>

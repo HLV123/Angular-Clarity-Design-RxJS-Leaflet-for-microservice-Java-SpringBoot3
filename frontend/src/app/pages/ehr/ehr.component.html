@@ -1,0 +1,222 @@
+<div class="page-header">
+  <div>
+    <h2>Hồ sơ Sức khỏe Điện tử</h2>
+    <p>Module 3 · EHR · SOAP Notes · Audit Trail (Kafka)</p>
+  </div>
+</div>
+<div class="ehr-layout">
+  <!-- Patient List Panel -->
+  <div class="card patient-panel">
+    <div class="card-header">Bệnh nhân</div>
+    <div class="patient-list">
+      @for (p of inpatients(); track p.id) {
+      <div class="patient-item" [class.active]="p.id === selectedPatientId()" (click)="selectPatient(p.id)">
+        <div class="patient-item-name">{{ p.id }} · {{ p.fullName }}</div>
+        <div class="patient-item-info">{{ p.ward }} · Bed {{ p.bed }} · {{ p.age }}T {{ p.gender }}</div>
+        <span class="badge" [class]="'badge-' + p.riskLevel.toLowerCase()" style="font-size:9px;margin-top:2px">{{
+          p.riskLevel }}</span>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- EHR Content -->
+  <div class="ehr-content">
+    <!-- Patient Header -->
+    <div class="card" style="margin-bottom:12px" *ngIf="selectedPatient() as p">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="avatar">{{ p.fullName.split(' ').slice(-1)[0][0] }}</div>
+          <div>
+            <strong>{{ p.fullName }}</strong> ({{ p.id }})
+            <div style="font-size:12px;color:#64748b">{{ p.age }}T · {{ p.gender }} · {{ p.bloodType }} · {{ p.ward }}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-primary" (click)="openNoteForm()"><i class="fa-solid fa-plus"></i> SOAP Note</button>
+          <button class="btn btn-secondary" (click)="toast.success('Xuất PDF EHR...')"><i
+              class="fa-solid fa-file-pdf"></i> Export</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab() === 'notes'" (click)="setTab('notes')">📝 SOAP Notes</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'diagnoses'" (click)="setTab('diagnoses')">🩺 Chẩn
+        đoán</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'labs'" (click)="setTab('labs')">🧪 Xét nghiệm</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'imaging'" (click)="setTab('imaging')">📷 Hình
+        ảnh</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'timeline'" (click)="setTab('timeline')">📅
+        Timeline</button>
+    </div>
+
+    <!-- Notes Tab -->
+    @if (activeTab() === 'notes') {
+    @for (note of notes(); track note.id) {
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-header">
+        <span><i class="fa-solid fa-note-sticky" style="color:#1574ea"></i> {{ note.type }} Note - {{ note.createdAt |
+          date:'dd/MM/yyyy HH:mm' }}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:11px;color:#64748b">{{ note.doctorName }}</span>
+          @if (note.locked) { <span class="badge badge-medium" style="font-size:9px"><i class="fa-solid fa-lock"></i>
+            Locked</span> }
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="soap-section">
+          <div class="soap-label s">S - SUBJECTIVE</div>
+          <p>{{ note.subjective }}</p>
+        </div>
+        <div class="soap-section">
+          <div class="soap-label o">O - OBJECTIVE</div>
+          <p>{{ note.objective }}</p>
+        </div>
+        <div class="soap-section">
+          <div class="soap-label a">A - ASSESSMENT</div>
+          <p>{{ note.assessment }}</p>
+        </div>
+        <div class="soap-section">
+          <div class="soap-label p">P - PLAN</div>
+          <p>{{ note.plan }}</p>
+        </div>
+      </div>
+    </div>
+    }
+    @if (notes().length === 0) {
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:40px;color:#94a3b8">Không có ghi chú lâm sàng cho bệnh
+        nhân này</div>
+    </div>
+    }
+    }
+
+    <!-- Diagnoses Tab -->
+    @if (activeTab() === 'diagnoses') {
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>ICD-10</th>
+            <th>Mô tả</th>
+            <th>Loại</th>
+            <th>Ngày chẩn đoán</th>
+            <th>Bác sĩ</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of diagnoses(); track d.id) {
+          <tr>
+            <td><span class="badge badge-info">{{ d.icd10Code }}</span></td>
+            <td><strong>{{ d.description }}</strong></td>
+            <td>{{ getDiagnosisTypeLabel(d.type) }}</td>
+            <td>{{ d.diagnosedAt | date:'dd/MM/yyyy' }}</td>
+            <td>{{ d.doctorName }}</td>
+          </tr>
+          }
+          @if (diagnoses().length === 0) { <tr>
+            <td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">Chưa có chẩn đoán</td>
+          </tr> }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <!-- Labs Tab -->
+    @if (activeTab() === 'labs') {
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Xét nghiệm</th>
+            <th>Phân loại</th>
+            <th>Kết quả</th>
+            <th>Đơn vị</th>
+            <th>Tham chiếu</th>
+            <th>Trạng thái</th>
+            <th>Ngày</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of labResults(); track l.id) {
+          <tr>
+            <td><strong>{{ l.testName }}</strong></td>
+            <td>{{ l.category }}</td>
+            <td [style.color]="l.status === 'Critical' ? '#dc2626' : l.status === 'Abnormal' ? '#f59e0b' : '#10b981'"
+              style="font-weight:700">{{ l.value }}</td>
+            <td>{{ l.unit }}</td>
+            <td>{{ l.referenceRange }}</td>
+            <td><span class="badge" [class]="getLabStatusClass(l.status)">{{ l.status }}</span></td>
+            <td>{{ l.resultDate | date:'dd/MM' }}</td>
+          </tr>
+          }
+          @if (labResults().length === 0) { <tr>
+            <td colspan="7" style="text-align:center;color:#94a3b8;padding:32px">Chưa có kết quả</td>
+          </tr> }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <!-- Imaging Tab -->
+    @if (activeTab() === 'imaging') {
+    <div class="imaging-grid">
+      @for (img of images; track img.id) {
+      <div class="card imaging-card" *ngIf="img.patientId === selectedPatientId()">
+        <div class="imaging-preview"><i class="fa-solid fa-x-ray" style="font-size:48px;color:#94a3b8"></i></div>
+        <div class="card-body" style="padding:12px">
+          <strong>{{ img.type }} - {{ img.bodyPart }}</strong>
+          <div style="font-size:11px;color:#64748b;margin-top:4px">{{ img.uploadedAt | date:'dd/MM/yyyy' }}</div>
+          <p style="font-size:12px;margin-top:6px">{{ img.reportSummary }}</p>
+        </div>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Timeline Tab -->
+    @if (activeTab() === 'timeline') {
+    <div class="timeline">
+      @for (e of timeline(); track e.date) {
+      <div class="timeline-item">
+        <div class="timeline-dot" [style.background]="e.color"><i [class]="'fa-solid ' + e.icon"
+            style="font-size:12px;color:#fff"></i></div>
+        <div class="timeline-content">
+          <div class="timeline-date">{{ e.date | date:'dd/MM/yyyy HH:mm' }}</div>
+          <div class="timeline-title">{{ e.title }}</div>
+          <div class="timeline-desc">{{ e.desc }}</div>
+          <div class="timeline-doctor">{{ e.doctor }}</div>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+
+<!-- SOAP Note Modal -->
+@if (showNoteForm()) {
+<div class="modal-overlay" (click)="closeNoteForm()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Tạo SOAP Note mới</h3><button class="btn btn-secondary" (click)="closeNoteForm()"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>S - Subjective (Triệu chứng bệnh nhân mô tả)</label><textarea
+          [(ngModel)]="newNote.subjective" rows="3" placeholder="Bệnh nhân khai..."></textarea></div>
+      <div class="form-group"><label>O - Objective (Kết quả thăm khám)</label><textarea [(ngModel)]="newNote.objective"
+          rows="3" placeholder="Mạch, HA, SpO2, khám lâm sàng..."></textarea></div>
+      <div class="form-group"><label>A - Assessment (Đánh giá / Chẩn đoán)</label><textarea
+          [(ngModel)]="newNote.assessment" rows="2" placeholder="ICD-10 code - Mô tả chẩn đoán"></textarea></div>
+      <div class="form-group"><label>P - Plan (Kế hoạch điều trị)</label><textarea [(ngModel)]="newNote.plan" rows="2"
+          placeholder="Thuốc, xét nghiệm, lịch tái khám..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" (click)="closeNoteForm()">Hủy</button><button
+        class="btn btn-primary" (click)="saveNote()"><i class="fa-solid fa-save"></i> Lưu Note</button></div>
+  </div>
+</div>
+}

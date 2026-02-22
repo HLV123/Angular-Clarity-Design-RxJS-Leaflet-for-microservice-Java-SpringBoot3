@@ -1,0 +1,49 @@
+@import '../../../styles-shared';
+
+.live-indicator { display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#10b981;background:#f0fdf4;padding:6px 12px;border-radius:20px; }
+.live-dot { width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.form-select { padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;cursor:pointer;min-width:220px; }
+
+.vitals-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px; }
+.vital-card {
+  padding:16px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;transition:all .3s;
+  &.normal { border-left:3px solid #10b981; .vital-icon { color:#10b981;background:#f0fdf4; } }
+  &.warning { border-left:3px solid #f59e0b; .vital-icon { color:#f59e0b;background:#fffbeb; } animation:glow-warn 2s infinite; }
+  &.danger { border-left:3px solid #ef4444; .vital-icon { color:#ef4444;background:#fef2f2; } animation:glow-danger 1s infinite; }
+}
+.vital-icon { width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+.vital-info { display:flex;flex-direction:column; }
+.vital-label { font-size:10px;font-weight:700;color:#64748b;letter-spacing:.5px; }
+.vital-value { font-size:24px;font-weight:800;line-height:1.1; }
+.vital-unit { font-size:10px;color:#94a3b8; }
+@keyframes glow-warn { 0%,100%{box-shadow:0 0 0 transparent} 50%{box-shadow:0 0 12px rgba(245,158,11,.2)} }
+@keyframes glow-danger { 0%,100%{box-shadow:0 0 0 transparent} 50%{box-shadow:0 0 12px rgba(239,68,68,.25)} }
+
+.patient-info-bar {
+  display:flex;align-items:center;gap:16px;padding:10px 16px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:12px;font-size:13px;flex-wrap:wrap;
+}
+
+.charts-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.chart-card { .card-header { padding:12px 16px; } }
+.chart-body { padding:8px 12px;height:180px; canvas { width:100%!important;height:100%!important; } }
+.chart-value { font-size:18px;font-weight:800; }
+
+.ward-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:16px; }
+.ward-cell {
+  padding:12px;border-radius:10px;border:2px solid #e2e8f0;cursor:pointer;transition:all .2s;
+  &:hover { transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08); }
+  &.normal { border-color:#10b981;background:#f0fdf4; }
+  &.warning { border-color:#f59e0b;background:#fffbeb; }
+  &.high { border-color:#ea580c;background:#fff7ed; }
+  &.critical { border-color:#ef4444;background:#fef2f2;animation:glow-danger 1.5s infinite; }
+}
+.ward-cell-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px; }
+.ward-cell-name { font-size:13px;font-weight:700;margin-bottom:2px; }
+.ward-cell-info { font-size:11px;color:#64748b; }
+.ward-cell-vitals { font-size:11px;display:flex;gap:8px;margin-top:6px; }
+.badge-critical { background:#fef2f2;color:#dc2626; }
+.badge-high { background:#fff7ed;color:#ea580c; }
+.badge-medium { background:#fefce8;color:#ca8a04; }
+.badge-low { background:#f0fdf4;color:#16a34a; }

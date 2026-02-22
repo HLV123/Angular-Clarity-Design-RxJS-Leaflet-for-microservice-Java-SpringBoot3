@@ -1,0 +1,200 @@
+<div class="page-header">
+  <div>
+    <h2>Cảnh báo & Thông báo</h2>
+    <p>Module 8 · Kafka Event Pipeline · Alert Rules Engine (Drools Simulation)</p>
+  </div>
+  <div class="tab-bar" style="margin-bottom:0">
+    <button class="tab-btn" [class.active]="activeTab() === 'list'" (click)="setTab('list')">
+      <i class="fa-solid fa-list-ul"></i> Danh sách Cảnh báo
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'rules'" (click)="setTab('rules')">
+      <i class="fa-solid fa-gears"></i> Luật & Thiết lập (Rules Engine)
+    </button>
+  </div>
+</div>
+
+<div class="alerts-layout">
+  @if (activeTab() === 'list') {
+  <div class="card" style="margin-top:16px">
+    <div class="card-header" style="justify-content:space-between">
+      <div style="display:flex;gap:12px;align-items:center">
+        <select class="form-select" [ngModel]="filterLevel()" (ngModelChange)="filterLevel.set($event)"
+          style="width:160px;font-size:13px">
+          <option value="ALL">Tất cả mức độ</option>
+          <option value="CRITICAL">🔥 CRITICAL</option>
+          <option value="HIGH">⚠️ HIGH</option>
+          <option value="MEDIUM">🔸 MEDIUM</option>
+          <option value="LOW">ℹ️ LOW</option>
+        </select>
+        <select class="form-select" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)"
+          style="width:160px;font-size:13px">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="UNACKNOWLEDGED">🔴 Chưa xử lý</option>
+          <option value="ACKNOWLEDGED">🟡 Đã xác nhận</option>
+          <option value="RESOLVED">🟢 Đã giải quyết</option>
+        </select>
+      </div>
+      <span class="badge badge-normal">{{ filteredAlerts().length }} cảnh báo lọc</span>
+    </div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Thời gian</th>
+            <th>Mức độ</th>
+            <th>Loại & Nội dung</th>
+            <th>Bệnh nhân</th>
+            <th>Trạng thái</th>
+            <th>Hành động (ACK)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of filteredAlerts(); track a.id) {
+          <tr>
+            <td style="font-size:12px;color:#94a3b8;font-family:monospace">{{ a.id }}</td>
+            <td>{{ a.timestamp | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td><span class="badge" [class]="getLevelClass(a.level)">{{ a.level }}</span></td>
+            <td>
+              <strong>{{ a.type }}</strong>
+              <div style="font-size:12px;color:#64748b;margin-top:2px">{{ a.message }}</div>
+            </td>
+            <td>
+              @if (a.patientId) {
+              <div>{{ a.patientName }}</div>
+              <div style="font-size:11px;color:#94a3b8">{{ a.patientId }}</div>
+              } @else {
+              <span style="color:#94a3b8">Hệ thống</span>
+              }
+            </td>
+            <td>
+              <span class="badge" [class]="getStatusBadge(a.status).class">{{ getStatusBadge(a.status).label }}</span>
+              @if (a.acknowledgedBy) {
+              <div style="font-size:10px;color:#94a3b8;margin-top:4px">bởi {{ a.acknowledgedBy }}</div>
+              }
+            </td>
+            <td style="min-width:140px">
+              @if (a.status === 'UNACKNOWLEDGED') {
+              <button class="btn btn-primary btn-sm" (click)="acknowledgeAlert(a.id)"><i class="fa-solid fa-check"></i>
+                Xác nhận</button>
+              }
+              @if (a.status === 'ACKNOWLEDGED') {
+              <button class="btn btn-secondary btn-sm" (click)="resolveAlert(a.id)"><i
+                  class="fa-solid fa-check-double"></i> Đã xử lý</button>
+              }
+              @if (a.status === 'RESOLVED') {
+              <span style="color:#10b981;font-size:12px;font-weight:600"><i class="fa-solid fa-circle-check"></i> Hoàn
+                thành</span>
+              }
+            </td>
+          </tr>
+          }
+          @if (filteredAlerts().length === 0) {
+          <tr>
+            <td colspan="7" style="text-align:center;padding:32px;color:#94a3b8">Không có dữ liệu phù hợp với bộ lọc
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+
+  @if (activeTab() === 'rules') {
+  <div class="rules-engine-layout">
+    <div class="card">
+      <div class="card-header"><span><i class="fa-solid fa-robot"></i> Danh sách Quy tắc Hệ thống (Drools Engine)</span>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="table-borderless">
+          <thead>
+            <tr>
+              <th>Rule ID</th>
+              <th>Chỉ số (Metric)</th>
+              <th>Điều kiện (Condition)</th>
+              <th>Mức độ Cảnh báo</th>
+              <th>Trạng thái</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of rules(); track r.id) {
+            <tr [class.inactive]="!r.isActive">
+              <td style="color:#64748b;font-family:monospace">{{ r.id }}</td>
+              <td><strong>{{ r.metric }}</strong></td>
+              <td>
+                <span style="font-family:monospace;background:#f1f5f9;padding:4px 8px;border-radius:4px"
+                  [style.color]="r.operator === '>' || r.operator === '<' ? '#ef4444' : '#3b82f6'">
+                  X {{ r.operator }} {{ r.value }}
+                </span>
+              </td>
+              <td><span class="badge" [class]="getLevelClass(r.level)">{{ r.level }}</span></td>
+              <td>
+                @if (r.isActive) {
+                <span style="color:#10b981;font-weight:600;font-size:13px"><i class="fa-solid fa-power-off"></i>
+                  ACTIVE</span>
+                } @else {
+                <span style="color:#94a3b8;font-weight:600;font-size:13px"><i class="fa-solid fa-power-off"></i>
+                  INACTIVE</span>
+                }
+              </td>
+              <td>
+                <button class="btn btn-secondary btn-sm" (click)="toggleRule(r.id)">{{ r.isActive ? 'Tắt' : 'Bật'
+                  }}</button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fa-solid fa-plus"></i> Tạo Quy tắc mới</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="form-group">
+            <label>Chỉ số giám sát</label>
+            <select class="form-select" [(ngModel)]="newRule.metric">
+              <option value="SpO2">SpO2 (%)</option>
+              <option value="Heart Rate">Nhịp tim (bpm)</option>
+              <option value="Blood Pressure">Huyết áp (mmHg)</option>
+              <option value="Temperature">Nhiệt độ (°C)</option>
+              <option value="Glucose">Đường huyết (mmol/L)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mức độ Cảnh báo</label>
+            <select class="form-select" [(ngModel)]="newRule.level">
+              <option value="CRITICAL">CRITICAL</option>
+              <option value="HIGH">HIGH</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="LOW">LOW</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px">Điều kiện kích hoạt</div>
+        <div
+          style="display:flex;gap:12px;align-items:center;margin-bottom:24px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0">
+          <span
+            style="font-family:monospace;background:white;padding:6px 12px;border-radius:4px;border:1px solid #cbd5e1;font-weight:600">X</span>
+          <select class="form-select" [(ngModel)]="newRule.operator" style="width:80px">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+            <option value="=">=</option>
+          </select>
+          <input type="number" class="form-control" [(ngModel)]="newRule.value" style="width:120px"
+            placeholder="Ngưỡng">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" (click)="addRule()">
+          <i class="fa-solid fa-check"></i> Lưu Quy tắc
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

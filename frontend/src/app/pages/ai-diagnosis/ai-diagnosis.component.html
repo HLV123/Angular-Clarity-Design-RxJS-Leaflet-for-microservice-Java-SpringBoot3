@@ -1,0 +1,172 @@
+<div class="page-header">
+  <div>
+    <h2>AI Chẩn đoán Hỗ trợ</h2>
+    <p>Module 4 · TensorFlow/BERT/CNN/LSTM · Ray Serve · gRPC Inference · MLflow Registry</p>
+  </div>
+</div>
+
+<div class="triage-bar">
+  @for (t of triageStats; track t.level) {
+    <div class="triage-item" [style.background]="t.bg" [style.border-color]="t.color">
+      <span class="triage-count" [style.color]="t.color">{{ t.count }}</span>
+      <span class="triage-label" [style.color]="t.color">{{ t.label }}</span>
+    </div>
+  }
+</div>
+
+<div class="ai-grid">
+  <div class="ai-left">
+    <!-- Symptom Checker -->
+    <div class="card">
+      <div class="card-header"><div class="header-left"><i class="fa-solid fa-stethoscope" style="color:#8b5cf6"></i> Symptom Checker (BERT)</div></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Bệnh nhân (tuỳ chọn)</label>
+          <select [ngModel]="selectedPatientId()" (ngModelChange)="selectedPatientId.set($event)">
+            <option value="">-- Không chọn --</option>
+            @for (p of patients(); track p.id) {
+              <option [value]="p.id">{{ p.id }} · {{ p.fullName }} ({{ p.age }}T, {{ p.gender }})</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Triệu chứng lâm sàng *</label>
+          <textarea rows="4" [ngModel]="symptoms()" (ngModelChange)="symptoms.set($event)"
+            placeholder="Ví dụ: Đau tức ngực trái khi gắng sức, khó thở, mệt mỏi, vã mồ hôi..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1;justify-content:center;padding:12px"
+            (click)="runSymptomCheck()" [disabled]="isAnalyzing()">
+            @if (isAnalyzing()) {
+              <i class="fa-solid fa-spinner fa-spin"></i> Đang phân tích...
+            } @else {
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Phân tích AI
+            }
+          </button>
+          @if (hasResult()) {
+            <button class="btn btn-secondary" (click)="clearResults()"><i class="fa-solid fa-eraser"></i></button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- X-Ray Analyzer -->
+    <div class="card">
+      <div class="card-header"><div class="header-left"><i class="fa-solid fa-x-ray" style="color:#3b82f6"></i> X-Ray Analyzer (CNN)</div><span class="model-tag">v2.3</span></div>
+      <div class="card-body">
+        <div class="upload-zone" (click)="simulateXrayAnalysis()">
+          @if (isAnalyzingXray()) {
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:24px;color:#3b82f6"></i>
+            <span>Đang phân tích hình ảnh...</span>
+          } @else {
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:#94a3b8"></i>
+            <span>Click để upload X-Ray (JPEG, PNG, DICOM)</span>
+          }
+        </div>
+        @if (xrayResult()) {
+          <div class="ai-result-box info"><i class="fa-solid fa-circle-info"></i><span>{{ xrayResult() }}</span></div>
+        }
+      </div>
+    </div>
+
+    <!-- ECG Classifier -->
+    <div class="card">
+      <div class="card-header"><div class="header-left"><i class="fa-solid fa-heart-pulse" style="color:#ef4444"></i> ECG Classifier (LSTM)</div><span class="model-tag">v1.8</span></div>
+      <div class="card-body">
+        <button class="btn btn-secondary" style="width:100%;justify-content:center" (click)="simulateECG()" [disabled]="ecgStatus() === 'analyzing'">
+          @if (ecgStatus() === 'analyzing') { <i class="fa-solid fa-spinner fa-spin"></i> Phân tích ECG... }
+          @else { <i class="fa-solid fa-bolt"></i> Phân tích ECG từ thiết bị }
+        </button>
+        @if (ecgResult()) {
+          <div class="ai-result-box success"><i class="fa-solid fa-check-circle"></i><span>{{ ecgResult() }}</span></div>
+        }
+      </div>
+    </div>
+
+    <!-- Risk Predictor -->
+    <div class="card">
+      <div class="card-header"><div class="header-left"><i class="fa-solid fa-chart-line" style="color:#f59e0b"></i> Risk Predictor (XGBoost)</div><span class="model-tag">v3.1</span></div>
+      <div class="card-body">
+        <button class="btn btn-secondary" style="width:100%;justify-content:center" (click)="simulateRiskPredictor()">
+          <i class="fa-solid fa-calculator"></i> Dự đoán nguy cơ 30 ngày
+        </button>
+        @if (riskScore() !== null) {
+          <div class="risk-result">
+            <div class="risk-gauge"><div class="risk-gauge-fill" [style.width.%]="(riskScore() || 0) * 100" [style.background]="(riskScore() || 0) > 0.7 ? '#ef4444' : (riskScore() || 0) > 0.4 ? '#f59e0b' : '#10b981'"></div></div>
+            <div style="font-size:13px;margin-top:6px">Risk Score: <strong [style.color]="(riskScore() || 0) > 0.7 ? '#ef4444' : '#f59e0b'">{{ ((riskScore() || 0) * 100).toFixed(0) }}%</strong></div>
+            @for (f of riskFactors(); track f) {
+              <div class="risk-factor-item"><i class="fa-solid fa-triangle-exclamation"></i> {{ f }}</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Results -->
+  <div class="ai-right">
+    <div class="card">
+      <div class="card-header">
+        <div class="header-left"><i class="fa-solid fa-brain" style="color:#8b5cf6"></i> Kết quả AI Chẩn đoán</div>
+        @if (hasResult()) { <span class="badge" [class]="getTriageBadgeClass(triageLevel())">Triage: {{ triageLevel() }}</span> }
+      </div>
+      <div class="card-body">
+        @if (isAnalyzing()) {
+          <div class="analyzing-state">
+            <div class="analyzing-spinner"></div>
+            <p>AI đang phân tích triệu chứng...</p>
+            <p style="font-size:11px;color:#94a3b8">gRPC → Ray Serve → BERT Model</p>
+          </div>
+        } @else if (hasResult()) {
+          <div class="confidence-bar">
+            <span>Độ tin cậy tổng thể</span>
+            <div class="conf-track"><div class="conf-fill" [style.width.%]="confidence() * 100"></div></div>
+            <span style="font-weight:700">{{ (confidence() * 100).toFixed(0) }}%</span>
+          </div>
+
+          @for (s of suggestions(); track s.icd10Code; let i = $index) {
+            <div class="suggestion-card" [class.top]="i === 0">
+              <div class="suggestion-header">
+                <div class="suggestion-rank">#{{ i + 1 }}</div>
+                <div style="flex:1">
+                  <div style="font-weight:700;font-size:14px">{{ s.diseaseName }}</div>
+                  <div style="font-size:11px;color:#64748b;font-family:monospace">{{ s.icd10Code }}</div>
+                </div>
+                <div class="suggestion-prob">
+                  <div class="prob-bar"><div class="prob-fill" [style.width.%]="s.probability * 100" [style.background]="getProbabilityColor(s.probability)"></div></div>
+                  <span [style.color]="getProbabilityColor(s.probability)" style="font-weight:700;font-size:14px">{{ (s.probability * 100).toFixed(0) }}%</span>
+                </div>
+              </div>
+              <div class="suggestion-rationale"><i class="fa-solid fa-lightbulb" style="color:#f59e0b"></i> {{ s.rationale }}</div>
+            </div>
+          }
+
+          <div class="ai-recommendation">
+            <i class="fa-solid fa-clipboard-check" style="color:#1574ea;font-size:18px"></i>
+            <div><strong>Khuyến nghị AI</strong><p style="margin-top:4px;font-size:13px;color:#475569">{{ recommendation() }}</p></div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <i class="fa-solid fa-robot"></i>
+            <p>Nhập triệu chứng và nhấn "Phân tích AI" để bắt đầu</p>
+            <p style="font-size:11px;color:#94a3b8">BERT model gợi ý top-5 chẩn đoán ICD-10</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+      <div class="card-header"><div class="header-left"><i class="fa-solid fa-clock-rotate-left" style="color:#64748b"></i> Lịch sử phân tích</div></div>
+      @if (analysisHistory().length === 0) {
+        <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px">Chưa có lịch sử</div>
+      } @else {
+        <div style="overflow-x:auto"><table><thead><tr><th>Giờ</th><th>Triệu chứng</th><th>Kết quả</th><th>Conf.</th></tr></thead><tbody>
+          @for (h of analysisHistory(); track h.timestamp) {
+            <tr><td style="font-size:11px;color:#64748b;white-space:nowrap">{{ h.timestamp }}</td><td style="font-size:12px">{{ h.symptoms }}</td><td style="font-size:12px;font-weight:600">{{ h.topResult }}</td><td><span class="badge badge-info">{{ (h.confidence * 100).toFixed(0) }}%</span></td></tr>
+          }
+        </tbody></table></div>
+      }
+    </div>
+  </div>
+</div>

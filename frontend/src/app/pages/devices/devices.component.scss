@@ -1,0 +1,28 @@
+@import '../../../styles-shared';
+
+.device-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1574ea; font-weight: 600; }
+.device-type-icon {
+  width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 12px; margin-right: 6px; vertical-align: middle;
+  &.wearable { background: #eff6ff; color: #2563eb; }
+  &.monitor { background: #f0fdf4; color: #059669; }
+  &.pump { background: #fefce8; color: #ca8a04; }
+  &.ventilator { background: #faf5ff; color: #7c3aed; }
+  &.glucose { background: #fff7ed; color: #ea580c; }
+  &.ecg { background: #fef2f2; color: #dc2626; }
+}
+.battery-bar {
+  width: 36px; height: 14px; border: 2px solid currentColor; border-radius: 3px; position: relative;
+  display: inline-block; vertical-align: middle;
+  &::before { content: ''; position: absolute; right: -5px; top: 3px; width: 3px; height: 6px; background: currentColor; border-radius: 0 2px 2px 0; }
+  .battery-fill { position: absolute; left: 1px; top: 1px; bottom: 1px; border-radius: 1px; }
+}
+.quality-bar { width: 50px; height: 5px; background: #e2e8f0; border-radius: 10px; overflow: hidden; display: inline-block; vertical-align: middle;
+  .quality-fill { height: 100%; border-radius: 10px; transition: width .3s; }
+}
+.sync-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94a3b8; white-space: nowrap; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.detail-item {
+  .detail-label { display: block; font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 3px; }
+  .detail-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+}

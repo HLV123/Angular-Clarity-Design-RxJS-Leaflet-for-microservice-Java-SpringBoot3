@@ -1,0 +1,118 @@
+<div class="page-header" style="margin-bottom:24px">
+  <div>
+    <h2>Tìm kiếm Thông minh (Global Search)</h2>
+    <p>Module 12 · Elasticsearch Integration · BM25 Semantic & Full-text search</p>
+  </div>
+</div>
+
+<div class="search-hero">
+  <div class="search-input-wrapper">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" class="global-search-input"
+      placeholder="Nhập tên bệnh nhân, tên thuốc, mã ICD-10, hoặc hồ sơ bệnh án..." [ngModel]="query()"
+      (ngModelChange)="query.set($event); onSearchChange()" (keyup.enter)="doSearch()">
+    @if (isSearching()) {
+    <i class="fa-solid fa-circle-notch fa-spin loading-icon"></i>
+    }
+  </div>
+
+  <div class="category-tabs">
+    <button class="cat-btn" [class.active]="activeType() === 'all'" (click)="setCategory('all')">Tất cả</button>
+    <button class="cat-btn" [class.active]="activeType() === 'patients'" (click)="setCategory('patients')">Bệnh
+      nhân</button>
+    <button class="cat-btn" [class.active]="activeType() === 'drugs'" (click)="setCategory('drugs')">Thuốc & Vật
+      tư</button>
+    <button class="cat-btn" [class.active]="activeType() === 'icd10'" (click)="setCategory('icd10')">Chẩn đoán
+      (ICD-10)</button>
+    <button class="cat-btn" [class.active]="activeType() === 'ehr'" (click)="setCategory('ehr')">Hồ sơ bệnh án</button>
+  </div>
+</div>
+
+<div class="search-layout">
+  <!-- Left Advanced Filters -->
+  <div class="card filters-sidebar">
+    <div class="card-header">
+      <span><i class="fa-solid fa-sliders"></i> Bộ lọc nâng cao</span>
+      <button class="btn-text" style="font-size:12px">Xóa</button>
+    </div>
+    <div class="card-body">
+      <div class="filter-group">
+        <label>Khoảng thời gian (Date Range)</label>
+        <input type="date" class="form-control" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+        <div style="text-align:center;color:#94a3b8;font-size:12px;margin:4px 0">đến</div>
+        <input type="date" class="form-control" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+      </div>
+
+      <div class="filter-group">
+        <label>Độ chính xác tối thiểu (Score BM25)</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input type="range" class="form-control" min="0" max="1" step="0.1" [ngModel]="minScore()"
+            (ngModelChange)="minScore.set($event); doSearch()" style="padding:0">
+          <span style="font-size:12px;font-family:monospace;font-weight:600">{{ minScore() }}</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Khoa / Phòng ban</label>
+        <select class="form-select">
+          <option>Tất cả khoa</option>
+          <option>Khoa Tim mạch</option>
+          <option>Khoa Hô hấp</option>
+          <option>Khoa Ngoại</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:16px"
+        (click)="doSearch()">Áp dụng bộ lọc</button>
+    </div>
+  </div>
+
+  <!-- Right Results -->
+  <div class="results-main">
+    @if (!hasSearched()) {
+    <div class="empty-state">
+      <i class="fa-solid fa-keyboard" style="font-size:48px;color:#cbd5e1;margin-bottom:16px"></i>
+      <h4 style="color:#475569;margin-bottom:8px">Bắt đầu tìm kiếm</h4>
+      <p style="color:#94a3b8;font-size:13px">Hỗ trợ tìm kiếm mờ (Fuzzy search), Full-text search (BM25) với
+        Elasticsearch. Gõ ít nhất 2 ký tự.</p>
+    </div>
+    } @else if (results().length === 0) {
+    <div class="empty-state">
+      <i class="fa-solid fa-box-open" style="font-size:48px;color:#cbd5e1;margin-bottom:16px"></i>
+      <h4 style="color:#475569;margin-bottom:8px">Không tìm thấy kết quả</h4>
+      <p style="color:#94a3b8;font-size:13px">Không có tài liệu nào phù hợp với từ khóa "{{ query() }}".</p>
+    </div>
+    } @else {
+    <div class="results-meta">
+      <span style="font-size:13px;color:#64748b">Tìm thấy <strong>{{ results().length }}</strong> kết quả (0.042
+        giây)</span>
+    </div>
+
+    <div class="results-list">
+      @for (r of results(); track r.id) {
+      <div class="result-card">
+        <div class="result-icon" [style.background]="getColorForType(r.type) + '1A'"
+          [style.color]="getColorForType(r.type)">
+          <i class="fa-solid" [class]="getIconForType(r.type)"></i>
+        </div>
+        <div class="result-content">
+          <div class="result-header">
+            <span class="result-type">{{ r.type | uppercase }}</span>
+            <span class="result-id">{{ r.id }}</span>
+          </div>
+          <h3 class="result-title">{{ r.title }}</h3>
+          <div class="result-subtitle">{{ r.subtitle }}</div>
+          @if (r.highlight) {
+          <div class="result-highlight" [innerHTML]="r.highlight"></div>
+          }
+        </div>
+        <div class="result-score">
+          <span class="score-val">{{ r.score | number:'1.2-2' }}</span>
+          <span class="score-label">Score</span>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>

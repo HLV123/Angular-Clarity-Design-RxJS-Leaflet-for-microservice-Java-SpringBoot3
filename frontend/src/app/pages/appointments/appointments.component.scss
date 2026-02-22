@@ -1,0 +1,26 @@
+@import '../../../styles-shared';
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card { text-align: center;
+  .stat-value { font-size: 32px; }
+  .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+}
+.queue-badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+  border-radius: 8px; font-size: 12px; font-weight: 700;
+  &.active { background: #eff6ff; color: #1574ea; animation: queuePulse 2s infinite; }
+  &.waiting { background: #fefce8; color: #ca8a04; }
+  &.done { background: #f0fdf4; color: #16a34a; }
+  &.cancel { background: #f1f5f9; color: #94a3b8; text-decoration: line-through; }
+}
+@keyframes queuePulse { 0%,100% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 8px rgba(21,116,234,.15); } }
+.doctor-avatar {
+  width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff; margin-right: 6px; vertical-align: middle;
+  background: linear-gradient(135deg, #1574ea, #2b91f5);
+}
+.time-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #1574ea; font-size: 13px; }
+.specialty-tag {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500;
+  background: #f1f5f9; color: #475569;
+}

@@ -1,0 +1,73 @@
+<div class="page-header">
+  <div>
+    <h2>Quản lý Bệnh nhân</h2>
+    <p>Module 1 · REST API /api/v1/patients · Elasticsearch Index</p>
+  </div>
+  <button class="btn btn-primary" (click)="addPatient()"><i class="fa-solid fa-user-plus"></i> Thêm Bệnh nhân</button>
+</div>
+
+<div class="filter-bar">
+  <input type="text" placeholder="Tìm theo tên, mã BN, SĐT..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+  <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+    <option value="">Tất cả trạng thái</option>
+    <option>Nội trú</option><option>Ngoại trú</option><option>Khẩn cấp</option><option>Ra viện</option>
+  </select>
+  <select [ngModel]="riskFilter()" (ngModelChange)="riskFilter.set($event)">
+    <option value="">Tất cả rủi ro</option>
+    <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+  </select>
+</div>
+
+<div class="table-card">
+  <table>
+    <thead>
+      <tr><th>Mã BN</th><th>Họ tên</th><th>Tuổi / Giới</th><th>SĐT</th><th>Trạng thái</th><th>Risk Score</th><th>Bác sĩ phụ trách</th><th>Dị ứng</th></tr>
+    </thead>
+    <tbody>
+      @for (p of filtered(); track p.id) {
+        <tr>
+          <td><span class="patient-id">{{ p.id }}</span></td>
+          <td><strong>{{ p.fullName }}</strong></td>
+          <td>{{ p.age }} · {{ p.gender }}</td>
+          <td>{{ p.phone }}</td>
+          <td><span class="status-badge" [style.color]="getStatusColor(p.status)">{{ p.status }}</span></td>
+          <td><span class="badge" [class]="getRiskClass(p.riskLevel)">{{ p.riskLevel }} ({{ (p.riskScore * 100).toFixed(0) }}%)</span></td>
+          <td>{{ p.assignedDoctor }}</td>
+          <td>
+            @if (p.allergies.length) {
+              <span class="allergy-tag">{{ p.allergies.join(', ') }}</span>
+            } @else { <span style="color:#94a3b8">-</span> }
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:40px">Không tìm thấy bệnh nhân</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header"><h3>Thêm Bệnh nhân mới</h3><button (click)="closeModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group"><label>Họ tên *</label><input type="text" placeholder="Nguyễn Văn A"></div>
+          <div class="form-group"><label>Ngày sinh *</label><input type="date"></div>
+          <div class="form-group"><label>Giới tính</label><select><option>Nam</option><option>Nữ</option></select></div>
+          <div class="form-group"><label>CCCD/CMND</label><input type="text" placeholder="0123456789"></div>
+          <div class="form-group"><label>Số điện thoại</label><input type="text" placeholder="0901234567"></div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="email@example.com"></div>
+          <div class="form-group full"><label>Địa chỉ</label><input type="text" placeholder="Số nhà, đường, quận/huyện..."></div>
+          <div class="form-group"><label>Nhóm máu</label><select><option>A+</option><option>B+</option><option>O+</option><option>AB+</option></select></div>
+          <div class="form-group"><label>Mã BHYT</label><input type="text" placeholder="Mã bảo hiểm"></div>
+          <div class="form-group full"><label>Dị ứng thuốc</label><input type="text" placeholder="Penicillin, Aspirin..."></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Hủy</button>
+        <button class="btn btn-primary" (click)="savePatient()">Lưu bệnh nhân</button>
+      </div>
+    </div>
+  </div>
+}

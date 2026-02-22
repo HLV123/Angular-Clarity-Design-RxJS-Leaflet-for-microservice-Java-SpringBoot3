@@ -1,0 +1,44 @@
+<div class="page-header">
+  <div>
+    <h2>Bản đồ & Địa lý Y tế (GIS)</h2>
+    <p>Health Intelligence Platform · Module 14 · Phân tích bản đồ dịch tễ mạng lưới bệnh viện</p>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div class="live-indicator"><span class="live-dot" style="background:#3b82f6"></span> {{ hospitals().length }} Cơ sở
+      Y tế</div>
+    <button class="btn btn-primary" (click)="toast.success('Tính năng heatmap đang phát triển')">
+      <i class="fa-solid fa-layer-group"></i> Lớp dữ liệu
+    </button>
+  </div>
+</div>
+
+<div class="gis-layout">
+  <!-- Sidebar -->
+  <div class="gis-sidebar card">
+    <div class="card-header">
+      <span><i class="fa-solid fa-hospital"></i> Danh sách Cơ sở</span>
+    </div>
+    <div class="gis-list">
+      @for (h of hospitals(); track h.id) {
+      <div class="hospital-item" (click)="panToHospital(h)">
+        <div class="hospital-name">{{ h.name }}</div>
+        <div class="hospital-address"><i class="fa-solid fa-location-dot"></i> {{ h.address }}</div>
+        <div class="hospital-stats">
+          <span class="badge badge-low"><i class="fa-solid fa-bed"></i> {{ h.beds }}</span>
+          <span class="badge badge-normal" style="text-transform:uppercase">{{ h.type }}</span>
+        </div>
+        <div class="hospital-specs">
+          @for (s of h.specialties; track s) {
+          <span class="spec-tag">{{ s }}</span>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Map Container -->
+  <div class="gis-map card">
+    <div #map class="map-container"></div>
+  </div>
+</div>

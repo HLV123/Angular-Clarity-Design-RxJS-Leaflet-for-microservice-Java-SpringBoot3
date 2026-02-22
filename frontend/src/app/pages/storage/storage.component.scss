@@ -1,0 +1,206 @@
+.stat-card {
+    padding: 20px;
+
+    .stat-label {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+}
+
+.storage-layout {
+    display: flex;
+    gap: 20px;
+    min-height: calc(100vh - 280px);
+
+    .file-browser {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .viewer-panel {
+        display: none;
+        width: 380px;
+        flex-shrink: 0;
+    }
+
+    &.has-selection {
+        .viewer-panel {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 12px;
+    gap: 8px;
+
+    i {
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    input {
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 13px;
+        width: 180px;
+    }
+}
+
+tr.active-row {
+    background: #eff6ff !important;
+
+    td {
+        border-bottom-color: #bfdbfe;
+    }
+}
+
+.viewer-body {
+    padding: 20px;
+    overflow-y: auto;
+
+    .file-meta-header {
+        text-align: center;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 20px;
+    }
+}
+
+.dicom-viewer-placeholder {
+    margin-top: 20px;
+
+    .dicom-toolbar {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        background: #1e293b;
+        padding: 10px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        color: #cbd5e1;
+        font-size: 14px;
+
+        i {
+            cursor: pointer;
+            transition: color 0.1s;
+
+            &:hover {
+                color: white;
+            }
+        }
+    }
+
+    .dicom-screen {
+        background: #0f172a;
+        height: 250px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        overflow: hidden;
+
+        .dicom-scan-icon {
+            font-size: 120px;
+            color: rgba(255, 255, 255, 0.05);
+            filter: blur(1px);
+        }
+
+        .dicom-overlay-tl,
+        .dicom-overlay-tr,
+        .dicom-overlay-bl,
+        .dicom-overlay-br {
+            position: absolute;
+            color: #94a3b8;
+            font-size: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.4;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+        }
+
+        .dicom-overlay-tl {
+            top: 10px;
+            left: 10px;
+        }
+
+        .dicom-overlay-tr {
+            top: 10px;
+            right: 10px;
+            text-align: right;
+        }
+
+        .dicom-overlay-bl {
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .dicom-overlay-br {
+            bottom: 10px;
+            right: 10px;
+            text-align: right;
+            color: #f59e0b;
+        }
+    }
+}
+
+.file-details {
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed #f1f5f9;
+        font-size: 13px;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #64748b;
+        }
+
+        .val {
+            color: #0f172a;
+            font-weight: 500;
+            text-align: right;
+        }
+    }
+}
+
+.upload-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background: #f8fafc;
+    text-align: center;
+    padding: 40px 20px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+}
+
+.uploading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+}

@@ -1,0 +1,26 @@
+@import '../../../styles-shared';
+
+.table-card {
+  background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;
+  .table-scroll { overflow-x: auto; }
+}
+.patient-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1574ea; font-weight: 600; }
+.patient-name { font-weight: 600; color: #1e293b; }
+.status-dot {
+  display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px;
+  &::before { content: ''; width: 7px; height: 7px; border-radius: 50%; }
+  &.inpatient::before { background: #1574ea; }
+  &.outpatient::before { background: #10b981; }
+  &.emergency::before { background: #ef4444; animation: livePulse 1s infinite; }
+  &.discharged::before { background: #94a3b8; }
+}
+.allergy-tag {
+  font-size: 10px; color: #dc2626; background: #fef2f2; padding: 2px 8px;
+  border-radius: 10px; border: 1px solid #fecaca;
+}
+.risk-score-bar {
+  display: inline-flex; align-items: center; gap: 6px;
+  .bar { width: 40px; height: 4px; background: #e2e8f0; border-radius: 10px; overflow: hidden;
+    .fill { height: 100%; border-radius: 10px; }
+  }
+}

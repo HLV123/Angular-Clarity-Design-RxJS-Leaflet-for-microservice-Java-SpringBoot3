@@ -1,0 +1,65 @@
+@import '../../../styles-shared';
+
+.triage-bar { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+.triage-item { padding:14px; border-radius:10px; text-align:center; border-left:4px solid;
+  .triage-count { display:block; font-size:24px; font-weight:800; }
+  .triage-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+}
+.ai-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.ai-left, .ai-right { display:flex; flex-direction:column; gap:12px; }
+.header-left { display:flex; align-items:center; gap:8px; font-weight:700; font-size:14px; }
+.model-tag { font-size:10px; background:#f1f5f9; color:#64748b; padding:2px 8px; border-radius:20px; font-weight:600; }
+.form-group { margin-bottom:12px;
+  label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; }
+  select, textarea, input { width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; outline:none; font-family:inherit; resize:vertical; }
+  textarea:focus, select:focus { border-color:#2b91f5; box-shadow:0 0 0 3px rgba(43,145,245,.15); }
+}
+.upload-zone {
+  border:2px dashed #d1d5db; border-radius:10px; padding:28px; text-align:center; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:8px; transition:all .2s; font-size:13px; color:#64748b;
+  &:hover { border-color:#2b91f5; background:#f8fafc; }
+}
+.ai-result-box {
+  margin-top:12px; padding:12px 16px; border-radius:8px; font-size:13px; display:flex; align-items:flex-start; gap:10px;
+  &.info { background:#eff6ff; color:#1d4ed8; }
+  &.success { background:#f0fdf4; color:#15803d; }
+  i { margin-top:2px; flex-shrink:0; }
+}
+.risk-result { margin-top:12px; }
+.risk-gauge { height:8px; background:#e2e8f0; border-radius:10px; overflow:hidden; margin-top:8px; }
+.risk-gauge-fill { height:100%; border-radius:10px; transition:width .5s ease; }
+.risk-factor-item { font-size:12px; color:#64748b; padding:4px 0; display:flex; align-items:center; gap:6px;
+  i { color:#f59e0b; font-size:10px; }
+}
+.analyzing-state { text-align:center; padding:48px 20px; color:#64748b;
+  p { font-size:14px; margin-top:12px; }
+}
+.analyzing-spinner {
+  width:40px; height:40px; border:3px solid #e2e8f0; border-top-color:#8b5cf6;
+  border-radius:50%; animation:spin 1s linear infinite; margin:0 auto;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.confidence-bar { display:flex; align-items:center; gap:10px; margin-bottom:16px; font-size:12px; font-weight:600; color:#64748b; }
+.conf-track { flex:1; height:6px; background:#e2e8f0; border-radius:10px; overflow:hidden; }
+.conf-fill { height:100%; background:linear-gradient(90deg,#8b5cf6,#6366f1); border-radius:10px; transition:width .5s; }
+.suggestion-card {
+  padding:14px 16px; background:#f8fafc; border-radius:10px; margin-bottom:8px; border-left:4px solid #e2e8f0;
+  &.top { border-left-color:#8b5cf6; background:#faf5ff; }
+}
+.suggestion-header { display:flex; align-items:center; gap:12px; }
+.suggestion-rank { width:28px; height:28px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; color:#475569; flex-shrink:0; }
+.suggestion-card.top .suggestion-rank { background:#8b5cf6; color:#fff; }
+.suggestion-prob { text-align:right; flex-shrink:0; }
+.prob-bar { width:60px; height:5px; background:#e2e8f0; border-radius:10px; overflow:hidden; margin-bottom:2px; }
+.prob-fill { height:100%; border-radius:10px; }
+.suggestion-rationale { margin-top:8px; padding-top:8px; border-top:1px solid rgba(0,0,0,.05); font-size:12px; color:#64748b; display:flex; align-items:flex-start; gap:6px; }
+.ai-recommendation { margin-top:16px; padding:14px 16px; background:#eff6ff; border-radius:10px; display:flex; align-items:flex-start; gap:12px; }
+.empty-state { text-align:center; padding:48px 20px; color:#94a3b8;
+  i { font-size:48px; margin-bottom:12px; }
+  p { font-size:14px; }
+}
+.triage-immediate { background:#fef2f2; color:#dc2626; }
+.triage-very-urgent { background:#fff7ed; color:#ea580c; }
+.triage-urgent { background:#fefce8; color:#ca8a04; }
+.triage-standard { background:#f0fdf4; color:#16a34a; }
+.triage-non-urgent { background:#eff6ff; color:#2563eb; }

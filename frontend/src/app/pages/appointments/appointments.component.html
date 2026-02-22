@@ -1,0 +1,119 @@
+<div class="page-header">
+  <div>
+    <h2>Lịch hẹn & Hàng đợi</h2>
+    <p>Module 5 · REST + WebSocket STOMP Queue · Real-time Sync</p>
+  </div>
+  <button class="btn btn-primary"><i class="fa-solid fa-calendar-plus"></i> Tạo lịch hẹn</button>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">Tổng số lịch hẹn hôm nay</div>
+        <div class="stat-value" style="color:#0f172a">{{ todayCount() }}</div>
+      </div>
+      <div style="font-size:32px;color:#cbd5e1"><i class="fa-solid fa-calendar-check"></i></div>
+    </div>
+  </div>
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">Đang chờ khám</div>
+        <div class="stat-value" style="color:#f59e0b">{{ waitingCount() }}</div>
+      </div>
+      <div style="font-size:32px;color:#fcd34d"><i class="fa-solid fa-users"></i></div>
+    </div>
+  </div>
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">Đã hoàn thành</div>
+        <div class="stat-value" style="color:#10b981">{{ completedCount() }}</div>
+      </div>
+      <div style="font-size:32px;color:#6ee7b7"><i class="fa-solid fa-circle-check"></i></div>
+    </div>
+  </div>
+  <div class="stat-card card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="stat-label">Trạng thái Sync (STOMP)</div>
+        <div class="stat-value" style="color:#10b981;font-size:16px;display:flex;align-items:center;gap:6px">
+          <i class="fa-solid fa-circle-dot fa-fade" style="font-size:12px"></i> CONNECTED
+        </div>
+      </div>
+      <div style="font-size:32px;color:#cbd5e1"><i class="fa-solid fa-network-wired"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;min-height:400px">
+  <div class="card-header" style="justify-content:space-between">
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <select class="form-select" [ngModel]="filterDoctor()" (ngModelChange)="filterDoctor.set($event)"
+        style="width:220px;font-size:13px">
+        <option value="ALL">Tất cả bác sĩ</option>
+        @for (doc of doctors(); track doc) {
+        <option [value]="doc">{{ doc }}</option>
+        }
+      </select>
+      <select class="form-select" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)"
+        style="width:200px;font-size:13px">
+        <option value="ALL">Tất cả trạng thái</option>
+        <option value="Đang khám">Đang khám</option>
+        <option value="Chờ khám">Chờ khám / Đã check-in</option>
+        <option value="Đã hoàn thành">Đã hoàn thành</option>
+      </select>
+    </div>
+    <span class="badge badge-normal">{{ filteredAppointments().length }} lượt khám</span>
+  </div>
+
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Mã cuộc hẹn</th>
+          <th>Bệnh nhân</th>
+          <th>Bác sĩ & Khoa</th>
+          <th>Giờ hẹn</th>
+          <th>Trạng thái</th>
+          <th style="text-align:right">Thao tác Gọi khám</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of filteredAppointments(); track a.id) {
+        <tr [class.highlight-row]="a.status === 'Đang khám'">
+          <td style="font-size:12px;color:#94a3b8;font-family:monospace">{{ a.id }}</td>
+          <td>
+            <strong style="color:#0f172a">{{ a.patientName }}</strong>
+            <div style="font-size:11px;color:#64748b;margin-top:4px">{{ a.reason || 'Khám tổng quát' }}</div>
+          </td>
+          <td>
+            <div>{{ a.doctorName }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">{{ a.department }}</div>
+          </td>
+          <td style="font-family:monospace;color:#475569">{{ a.scheduledAt | date:'HH:mm dd/MM' }}</td>
+          <td><span class="badge" [class]="getStatusBadgeClass(a.status)">{{ a.status }}</span></td>
+          <td style="text-align:right">
+            @if (a.status === 'Chờ khám' || a.status === 'Đã check-in') {
+            <button class="btn btn-primary btn-sm" (click)="callPatient(a)"><i class="fa-solid fa-bullhorn"></i> Gọi
+              khám</button>
+            } @else if (a.status === 'Đang khám') {
+            <button class="btn btn-secondary btn-sm" (click)="completeAppointment(a)"
+              style="background:#e2e8f0;color:#0f172a"><i class="fa-solid fa-check"></i> Hoàn thành</button>
+            } @else {
+            <span style="font-size:12px;color:#cbd5e1"><i class="fa-solid fa-minus"></i></span>
+            }
+          </td>
+        </tr>
+        }
+        @if (filteredAppointments().length === 0) {
+        <tr>
+          <td colspan="6" style="text-align:center;padding:40px;color:#94a3b8">Không có lịch hẹn nào thỏa mãn điều kiện
+            lọc.</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

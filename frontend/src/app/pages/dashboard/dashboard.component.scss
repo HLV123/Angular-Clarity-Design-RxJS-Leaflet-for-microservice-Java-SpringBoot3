@@ -1,0 +1,37 @@
+@import '../../../styles-shared';
+
+.stat-change { font-size: 11px; font-weight: 600; margin-top: 4px; color: #64748b;
+  &.positive { color: #10b981; }
+}
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+.chart-body { height: 240px; position: relative;
+  canvas { width: 100% !important; height: 100% !important; }
+}
+.bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.alert-list { max-height: 280px; overflow-y: auto; }
+.alert-item {
+  padding: 12px 20px; display: flex; align-items: flex-start; gap: 10px;
+  border-bottom: 1px solid #f8fafc; transition: background .15s;
+  &:hover { background: #f8fafc; }
+  .alert-msg { font-size: 13px; font-weight: 500; }
+  .alert-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+}
+.graph-card {
+  background: linear-gradient(135deg, #0f172a, #1e293b) !important; border: none !important;
+  cursor: pointer; position: relative; overflow: hidden; text-decoration: none;
+  display: flex; align-items: center; justify-content: center; min-height: 280px;
+  transition: transform .2s, box-shadow .2s;
+  &:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.2); }
+  .graph-bg { position: absolute; inset: 0; opacity: .08; background-image: radial-gradient(#38bdf8 1.5px, transparent 1.5px); background-size: 24px 24px; }
+  .graph-content { position: relative; z-index: 1; text-align: center; }
+  .graph-icon { font-size: 48px; color: #2b91f5; margin-bottom: 16px; }
+  h3 { color: #fff; font-size: 18px; font-weight: 700; }
+  p { color: #94a3b8; font-size: 12px; margin-top: 6px; }
+  .graph-tags { display: flex; gap: 8px; margin-top: 16px; justify-content: center; }
+  .graph-tag {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    &.disease { background: rgba(59,130,246,.2); color: #60a5fa; }
+    &.drug { background: rgba(16,185,129,.2); color: #34d399; }
+    &.symptom { background: rgba(251,191,36,.2); color: #fbbf24; }
+  }
+}

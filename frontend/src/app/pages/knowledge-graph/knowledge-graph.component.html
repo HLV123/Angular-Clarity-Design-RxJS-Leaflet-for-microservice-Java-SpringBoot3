@@ -1,0 +1,74 @@
+<div class="page-header">
+  <div>
+    <h2>Health Knowledge Graph</h2>
+    <p>Module 10 · Neo4j 5 (Bolt) · Cypher Queries · Thống kê & Visualize</p>
+  </div>
+</div>
+
+<div class="kg-layout">
+  <!-- Sidebar -->
+  <div class="kg-sidebar">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <span><i class="fa-solid fa-code"></i> Truy vấn Graph (Cypher)</span>
+      </div>
+      <div class="card-body">
+        <select class="form-select" style="margin-bottom:12px">
+          <option>Mạng lưới bệnh lý (MATCH p=()-[]->() RETURN p)</option>
+          <option>Tương tác thuốc (MATCH (:Drug)-[r:INTERACTS_WITH]->(:Drug))</option>
+          <option>Nguy cơ di truyền</option>
+          <option>Gợi ý điều trị</option>
+        </select>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" (click)="refreshGraph()">
+          <i class="fa-solid fa-play"></i> Thực thi Cypher
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fa-solid fa-chart-pie"></i> Thống kê Graph</span>
+      </div>
+      <div class="card-body stat-list">
+        <div class="stat-row">
+          <span class="stat-label">Các thực thể (Nodes)</span>
+          <strong class="stat-value">{{ stats.nodes | number }}</strong>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Quan hệ (Relationships)</span>
+          <strong class="stat-value">{{ stats.relationships | number }}</strong>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label" style="color:#ef4444">Chẩn đoán (Diseases)</span>
+          <strong class="stat-value">{{ stats.diseases | number }}</strong>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label" style="color:#10b981">Thuốc (Drugs)</span>
+          <strong class="stat-value">{{ stats.drugs | number }}</strong>
+        </div>
+
+        <div class="legend-box" style="margin-top:24px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:#475569">CHÚ THÍCH NODE CHÍNH</div>
+          <div class="legend-item"><span class="color-dot" style="background:#3b82f6"></span> Bệnh nhân</div>
+          <div class="legend-item"><span class="color-dot" style="background:#06b6d4"></span> Bác sĩ</div>
+          <div class="legend-item"><span class="color-dot" style="background:#ef4444"></span> Bệnh lý / Chẩn đoán</div>
+          <div class="legend-item"><span class="color-dot" style="background:#f59e0b"></span> Triệu chứng</div>
+          <div class="legend-item"><span class="color-dot" style="background:#10b981"></span> Thuốc / Phương pháp điều
+            trị</div>
+          <div class="legend-item"><span class="color-dot" style="background:#8b5cf6"></span> Yếu tố nguy cơ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D3 Canvas -->
+  <div class="kg-main card">
+    <div class="card-header">
+      <span><i class="fa-solid fa-project-diagram"></i> Visualization (D3.js Force-Directed Graph)</span>
+      <span class="badge badge-normal" style="font-size:10px">Interactive</span>
+    </div>
+    <div class="card-body canvas-wrapper">
+      <div #d3Canvas class="d3-container"></div>
+    </div>
+  </div>
+</div>
